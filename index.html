@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Cryptid Static — Hook & Caption Finder</title>
+<title>Cryptid Static — Signal Tools</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -31,10 +31,8 @@
   header{text-align:center;margin-bottom:8px;}
   .kicker{font-size:11px;letter-spacing:.45em;color:var(--cyan-dim);text-transform:uppercase;margin-bottom:14px;}
   h1{
-    font-family:'Major Mono Display',monospace;
-    font-size:clamp(22px,6vw,36px);
-    color:var(--white);letter-spacing:.05em;line-height:1.05;
-    text-shadow:0 0 18px rgba(57,230,224,0.25);
+    font-family:'Major Mono Display',monospace;font-size:clamp(22px,6vw,36px);
+    color:var(--white);letter-spacing:.05em;line-height:1.05;text-shadow:0 0 18px rgba(57,230,224,0.25);
   }
   h1 .glitch{position:relative;display:inline-block;}
   h1 .glitch::before,h1 .glitch::after{content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden;}
@@ -45,33 +43,39 @@
   .sub{color:var(--muted);font-size:12px;margin-top:14px;letter-spacing:.08em;}
   .sub b{color:var(--text);font-weight:700;}
 
-  .card{
-    background:linear-gradient(180deg,var(--panel),var(--panel-2));
-    border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:22px;position:relative;
-  }
-  .card::before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;
-    background:linear-gradient(90deg,transparent,var(--cyan-dim),transparent);opacity:.5;}
+  /* mode toggle */
+  .modes{display:flex;gap:8px;margin-top:24px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:5px;}
+  .mode-btn{flex:1;padding:12px;border:none;border-radius:8px;cursor:pointer;background:transparent;
+    color:var(--muted);font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;transition:.2s;}
+  .mode-btn.active{background:linear-gradient(180deg,#143b3a,#0e2b2a);color:var(--cyan);box-shadow:inset 0 0 0 1px var(--cyan-dim);}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px;position:relative;}
+  .card::before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,var(--cyan-dim),transparent);opacity:.5;}
   label{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-  textarea{
-    width:100%;min-height:200px;resize:vertical;background:#05070a;border:1px solid var(--line);border-radius:10px;
-    color:var(--text);font-family:'Space Mono',monospace;font-size:14px;line-height:1.6;padding:14px;outline:none;transition:border-color .2s;
-  }
+  textarea{width:100%;min-height:160px;resize:vertical;background:#05070a;border:1px solid var(--line);border-radius:10px;
+    color:var(--text);font-family:'Space Mono',monospace;font-size:14px;line-height:1.6;padding:14px;outline:none;transition:border-color .2s;}
+  textarea.song{min-height:120px;}
   textarea:focus{border-color:var(--cyan-dim);box-shadow:0 0 0 1px var(--cyan-dim);}
   textarea::placeholder{color:#3a4651;}
 
   .grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px;}
   .grid3{display:grid;grid-template-columns:1.6fr .7fr .7fr;gap:10px;margin-top:10px;}
+  .grid2{display:grid;grid-template-columns:1fr .8fr;gap:10px;margin-top:10px;}
   .in{background:#05070a;border:1px solid var(--line);border-radius:10px;color:var(--text);
     font-family:'Space Mono',monospace;font-size:13px;padding:11px 12px;outline:none;width:100%;}
   .in:focus{border-color:var(--cyan-dim);}
   .in::placeholder{color:#3a4651;}
 
-  button.go{
-    width:100%;margin-top:16px;padding:15px;border:none;border-radius:10px;cursor:pointer;
+  .song-block{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:12px;background:#0a0e13;}
+  .song-block .sb-head{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan-dim);margin-bottom:9px;}
+  .song-block input{margin-bottom:9px;}
+  .count-row{display:flex;align-items:center;gap:12px;margin-top:6px;}
+  .count-row label{margin-bottom:0;}
+  .count-row select{background:#05070a;border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:9px 10px;outline:none;}
+
+  button.go{width:100%;margin-top:16px;padding:15px;border:none;border-radius:10px;cursor:pointer;
     font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:.18em;text-transform:uppercase;
-    color:#04201f;background:linear-gradient(90deg,var(--cyan),#7ff5f0);
-    transition:transform .12s, box-shadow .2s, opacity .2s;box-shadow:0 0 24px rgba(57,230,224,0.25);
-  }
+    color:#04201f;background:linear-gradient(90deg,var(--cyan),#7ff5f0);transition:transform .12s, box-shadow .2s, opacity .2s;box-shadow:0 0 24px rgba(57,230,224,0.25);}
   button.go:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 0 34px rgba(57,230,224,0.45);}
   button.go:disabled{opacity:.5;cursor:not-allowed;}
 
@@ -79,10 +83,8 @@
   .status.err{color:var(--red);}
 
   .results{margin-top:8px;}
-  .result{
-    background:linear-gradient(180deg,var(--panel),#0a0e13);border:1px solid var(--line);border-left:3px solid var(--cyan-dim);
-    border-radius:12px;padding:16px 16px 16px 18px;margin-top:14px;animation:rise .5s ease both;
-  }
+  .result{background:linear-gradient(180deg,var(--panel),#0a0e13);border:1px solid var(--line);border-left:3px solid var(--cyan-dim);
+    border-radius:12px;padding:16px 16px 16px 18px;margin-top:14px;animation:rise .5s ease both;}
   .result.top{border-left-color:var(--cyan);box-shadow:0 0 30px rgba(57,230,224,0.10);}
   @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .r-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;}
@@ -91,21 +93,28 @@
   .score{font-family:'Major Mono Display',monospace;font-size:20px;color:var(--white);}
   .score small{font-size:11px;color:var(--muted);}
   .line{font-size:16px;line-height:1.45;color:var(--white);margin-bottom:12px;font-weight:700;}
-
-  .caption-box{
-    background:#05070a;border:1px dashed var(--line);border-radius:10px;padding:13px 14px;margin-top:6px;
-    font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;
-  }
   .cap-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan-dim);margin-bottom:8px;}
+  .caption-box{background:#05070a;border:1px dashed var(--line);border-radius:10px;padding:13px 14px;margin-top:6px;font-size:13.5px;line-height:1.7;color:var(--text);white-space:pre-wrap;}
   .btnrow{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap;}
-  .mini{background:transparent;border:1px solid var(--line);color:var(--muted);
-    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-    padding:7px 12px;border-radius:7px;cursor:pointer;transition:.15s;}
+  .mini{background:transparent;border:1px solid var(--line);color:var(--muted);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:7px 12px;border-radius:7px;cursor:pointer;transition:.15s;}
   .mini:hover{border-color:var(--cyan-dim);color:var(--cyan);}
   .mini.on{border-color:var(--cyan-dim);color:var(--cyan);}
   .why{font-size:12px;line-height:1.6;color:var(--text);opacity:.8;border-top:1px dashed var(--line);padding-top:10px;margin-top:11px;display:none;}
   .why.show{display:block;}
   .why b{color:var(--cyan);font-weight:400;letter-spacing:.05em;}
+
+  /* album report blocks */
+  .report-sec{background:linear-gradient(180deg,var(--panel),#0a0e13);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:14px;animation:rise .5s ease both;}
+  .report-sec h2{font-family:'Major Mono Display',monospace;font-size:15px;color:var(--cyan);letter-spacing:.06em;margin-bottom:14px;text-transform:lowercase;}
+  .draft-tag{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);border-radius:5px;padding:2px 6px;margin-left:8px;vertical-align:middle;opacity:.8;}
+  .opt{background:#05070a;border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin-bottom:9px;font-size:14px;color:var(--white);}
+  .opt small{display:block;color:var(--muted);font-size:11.5px;margin-top:5px;line-height:1.5;font-weight:400;}
+  .single-pick{font-size:17px;color:var(--white);font-weight:700;margin-bottom:8px;}
+  .single-why{font-size:12.5px;color:var(--text);opacity:.85;line-height:1.6;}
+  .track-mini{border-top:1px dashed var(--line);padding-top:12px;margin-top:12px;}
+  .track-mini:first-child{border-top:none;padding-top:0;margin-top:0;}
+  .tm-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-dim);margin-bottom:6px;}
+  .tm-line{font-size:14.5px;color:var(--white);font-weight:700;margin-bottom:8px;}
 
   details.crit{margin-top:22px;border:1px solid var(--line);border-radius:10px;background:var(--panel);}
   summary{cursor:pointer;padding:13px 16px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);list-style:none;}
@@ -116,9 +125,9 @@
   .crit-body b{color:var(--text);}
 
   .keybar{margin-top:22px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.05em;}
-  .keybar input{background:#05070a;border:1px solid var(--line);border-radius:8px;color:var(--text);
-    font-family:'Space Mono',monospace;font-size:11px;padding:8px 10px;width:230px;margin:6px 4px 0;}
+  .keybar input{background:#05070a;border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:11px;padding:8px 10px;width:230px;margin:6px 4px 0;}
   .keybar input:focus{outline:none;border-color:var(--cyan-dim);}
+  .hidden{display:none;}
   footer{text-align:center;margin-top:34px;color:#384450;font-size:10px;letter-spacing:.3em;text-transform:uppercase;}
 </style>
 </head>
@@ -126,25 +135,44 @@
 <div class="wrap">
   <header>
     <div class="kicker">Cryptid Static · Signal Tools</div>
-    <h1><span class="glitch" data-t="HOOK + CAPTION">HOOK + CAPTION</span></h1>
-    <p class="sub">Lyrics in. The line that makes them <b>feel caught</b> — plus the caption to post it.</p>
+    <h1><span class="glitch" data-t="SIGNAL TOOLS">SIGNAL TOOLS</span></h1>
+    <p class="sub">The line that makes them <b>feel caught</b> — one song or the whole record.</p>
   </header>
 
-  <div class="card">
+  <div class="modes">
+    <button class="mode-btn active" id="m-single" onclick="setMode('single')">Single song</button>
+    <button class="mode-btn" id="m-album" onclick="setMode('album')">Full album</button>
+  </div>
+
+  <!-- SINGLE MODE -->
+  <div id="single-card" class="card">
     <label for="lyrics">Lyrics</label>
     <textarea id="lyrics" placeholder="Paste full lyrics — verses, chorus, bridge, all of it..."></textarea>
-
-    <div class="grid">
-      <input id="title" class="in" type="text" placeholder="Song title (e.g. Half My Life)" />
-    </div>
+    <div class="grid"><input id="title" class="in" type="text" placeholder="Song title (e.g. Half My Life)" /></div>
     <div class="grid3">
       <input id="album" class="in" type="text" placeholder="Album (e.g. Terms and Conditions)" />
       <input id="track" class="in" type="number" min="1" placeholder="Track #" />
       <input id="total" class="in" type="number" min="1" placeholder="of __" />
     </div>
+    <button class="go" id="go-single">Find hook + build captions</button>
+    <div class="status" id="status-single"></div>
+  </div>
 
-    <button class="go" id="go">Find hook + build captions</button>
-    <div class="status" id="status"></div>
+  <!-- ALBUM MODE -->
+  <div id="album-card" class="card hidden">
+    <div class="grid2">
+      <input id="a-album" class="in" type="text" placeholder="Album name (or leave blank to suggest)" />
+      <input id="a-hashtags" class="in" type="text" placeholder="Hashtags (optional)" />
+    </div>
+    <div class="count-row">
+      <label for="a-count">How many songs</label>
+      <select id="a-count" onchange="renderSongFields()">
+        <script>for(let i=2;i<=12;i++)document.write('<option value="'+i+'"'+(i===12?' selected':'')+'>'+i+'</option>')</script>
+      </select>
+    </div>
+    <div id="song-fields"></div>
+    <button class="go" id="go-album">Read album → build report</button>
+    <div class="status" id="status-album"></div>
   </div>
 
   <div class="results" id="results"></div>
@@ -156,14 +184,15 @@
       <b>Confession against self-interest</b> — admitting something ugly or unflattering they'd rather not say. The "<i>almost wants it back</i>" move.<br><br>
       <b>Specificity</b> — a concrete, lived detail beats an abstract feeling.<br><br>
       <b>Scroll-stop</b> — it has to land cold, in the first 2 seconds, with zero context.<br><br>
-      <b>Benchmark (10/10):</b> "and I still hate that part of me that almost wants it back."
+      <b>Benchmark (10/10):</b> "and I still hate that part of me that almost wants it back."<br><br>
+      <b>Album mode note:</b> hooks, captions, and the single pick are the tool's strong suit. The album name + tagline are offered as <b>drafts to react to</b> — those are yours to own.
     </div>
   </details>
 
   <div class="keybar">
     Running on GitHub Pages? Add your fallback key (stored only in this browser):<br>
     <input id="anthropicKey" type="password" placeholder="Anthropic API key (optional)" />
-    <input id="groqKey" type="password" placeholder="Groq API key (fallback)" />
+    <input id="groqKey" type="password" placeholder="Groq API key (primary)" />
   </div>
 
   <footer>Stay tuned.</footer>
@@ -171,6 +200,38 @@
 
 <script>
 const $ = id => document.getElementById(id);
+let MODE='single';
+
+function setMode(m){
+  MODE=m;
+  $('m-single').classList.toggle('active',m==='single');
+  $('m-album').classList.toggle('active',m==='album');
+  $('single-card').classList.toggle('hidden',m!=='single');
+  $('album-card').classList.toggle('hidden',m!=='album');
+  $('results').innerHTML='';
+  if(m==='album') renderSongFields();
+}
+
+function renderSongFields(){
+  const n=parseInt($('a-count').value,10);
+  const box=$('song-fields'); 
+  const existing={};
+  box.querySelectorAll('.song-block').forEach((b,i)=>{
+    existing[i]={t:b.querySelector('.s-title').value,l:b.querySelector('.s-lyrics').value};
+  });
+  box.innerHTML='';
+  for(let i=0;i<n;i++){
+    const div=document.createElement('div');
+    div.className='song-block';
+    div.innerHTML=`
+      <div class="sb-head">Track ${i+1}</div>
+      <input class="in s-title" type="text" placeholder="Song title (optional)" />
+      <textarea class="song s-lyrics" placeholder="Paste track ${i+1} lyrics..."></textarea>
+    `;
+    box.appendChild(div);
+    if(existing[i]){div.querySelector('.s-title').value=existing[i].t||'';div.querySelector('.s-lyrics').value=existing[i].l||'';}
+  }
+}
 
 ['anthropicKey','groqKey'].forEach(k=>{
   const el=$(k);
@@ -178,134 +239,178 @@ const $ = id => document.getElementById(id);
   el.addEventListener('input',()=>{ try{localStorage.setItem('cs_'+k, el.value);}catch(e){} });
 });
 
-const HASHTAGS = "#CryptidStatic #glitchmetal #alternativemetal #darkmusic #lyricvideo";
+const DEFAULT_TAGS = "#CryptidStatic #glitchmetal #alternativemetal #darkmusic #lyricvideo";
 
-const SYSTEM_PROMPT = `You are the hook + caption engine for Cryptid Static, a dark glitch-metal project. The user gives you song lyrics plus release info. Do two jobs.
+const HOOK_RULES = `Find the lines (single line or tight 2-line couplet) that work best as a TikTok hook clip: text that flashes on screen in the first 2 seconds to stop the scroll. NOT the prettiest line — the line that makes a viewer feel CAUGHT, like you said their own private, unflattering thought out loud.
+Score 0-100, weighted: IMPLICATION 40% (makes the viewer feel seen/caught; implicates THEM not just describes the narrator); CONFESSION AGAINST SELF-INTEREST 30% (admits something ugly/contradictory/shameful the narrator would rather not say; self-incriminating beats self-pitying); SPECIFICITY 15% (concrete lived detail over abstract feeling); SCROLL-STOP 15% (works cold, zero context, under 2 seconds).
+10/10 anchor: "and I still hate that part of me that almost wants it back" — confession against self-interest, made true by "almost." Avoid pure scene-setting, abstract mood lines, anything needing the rest of the song. Use exact lyric wording. Whole-number scores. Preserve title and album CASING exactly as given by the user — these are proper titles, use Title Case, never lowercase them.`;
 
-JOB 1 — FIND THE HOOK. Find the lines (single line or tight 2-line couplet) that work best as a TikTok hook clip: the text that flashes on screen in the first 2 seconds to stop the scroll. You are NOT looking for the prettiest line. You want the line that makes a viewer feel CAUGHT — like you just said their own private, unflattering thought out loud.
-Score 0-100, weighted:
-- IMPLICATION (40%): makes the viewer feel seen/caught in a private thought; implicates THEM, not just describes the narrator.
-- CONFESSION AGAINST SELF-INTEREST (30%): admits something ugly, contradictory, or shameful the narrator would rather not say. Self-incriminating beats self-pitying.
-- SPECIFICITY (15%): concrete lived detail over abstract feeling.
-- SCROLL-STOP (15%): works cold, zero context, under 2 seconds.
-The 10/10 anchor is "and I still hate that part of me that almost wants it back" — a confession against self-interest, made contradictory and true by "almost," catching the listener admitting their own worst thought. Avoid pure scene-setting, abstract mood lines, or anything needing the rest of the song.
+const CAPTION_RULES = `Write a ready-to-post TikTok caption in the Cryptid Static voice: spare, ominous, recognition not promotion, no emojis, no exclamation points, never explain the song. Structure:
+line 1: the hook line as a cold standalone (you may adjust punctuation only — e.g. em-dash to period — but NEVER change words);
+then: "Frequency {track} of {total} — {title}";
+then: "{album}, out now.";
+then: "Stay tuned.";
+then the hashtags. Keep title and album in their proper Title Case.`;
 
-JOB 2 — WRITE THE CAPTION. For EACH of the top 3 hooks, write a ready-to-post TikTok caption in the Cryptid Static voice: spare, ominous, no hype, no emojis, lowercase-leaning is fine but match the line's own casing for the hook itself. Structure each caption as:
-- line 1: the hook line, presented as a cold standalone statement (you may lightly adjust punctuation for standalone on-screen impact, e.g. em-dash to period, but do NOT change the words).
-- then: "Frequency {track} of {total} — {title}"
-- then: "{album}, out now."
-- then: "Stay tuned."
-- then the hashtags provided.
-Keep it tight. The voice is recognition, not promotion. Never explain the song. Never use exclamation points.
+const SINGLE_SYSTEM = `You are the hook + caption engine for Cryptid Static, a dark glitch-metal project.
+JOB 1 — FIND THE HOOK. ${HOOK_RULES}
+JOB 2 — CAPTION. For EACH of the top 3 hooks: ${CAPTION_RULES}
+Return ONLY valid JSON, no markdown:
+{"hooks":[{"line":"exact line","score":92,"why":"1-2 sentences naming the move it makes","caption":"full caption with real newlines"}]}
+Top 3, ranked highest first.`;
+
+const ALBUM_SYSTEM = `You are the album planner for Cryptid Static, a dark glitch-metal project whose brand is an AI-transmission / "frequency" concept: each album is one "frequency" of human transformation, with a short evocative tagline (examples of the house style: "the frequency forgot it was human", "where were you when the frequency changed"). 
+You receive a full set of songs (titles may be blank — infer a working title from the lyrics if so, and say it's inferred).
+Produce a strategic rollout report. Return ALL of the following.
+
+1. ALBUM NAME — 5 candidate names as DRAFTS for the artist to react to. Each short, evocative, no generic words. For each, one short line on the angle it takes. These are sparks, not the answer.
+2. FREQUENCY TAGLINE — 5 candidate taglines in the house style above (short, ominous, "the frequency ___" or similar but vary it). DRAFTS to react to.
+3. BREAKOUT SINGLE — pick the ONE track that should be the lead single, judged on: strongest hook potential (most implicating/catching line), emotional accessibility to a cold listener, and how well it represents the record. Name it and give 2-3 sentences of why, and name the runner-up.
+4. PER-TRACK — for every track in order: its single strongest hook line, the hook score 0-100, and a ready-to-post caption. ${CAPTION_RULES}
+
+For hooks use these rules: ${HOOK_RULES}
 
 Return ONLY valid JSON, no markdown, no preamble:
-{"hooks":[{"line":"exact line from lyrics","score":92,"why":"one or two sentences naming the specific move it makes","caption":"the full ready-to-post caption with real newlines"}]}
-Top 3, ranked highest score first, exact lyric wording, whole-number scores.`;
-
-function buildUserMsg(lyrics, meta){
-  return `Song title: ${meta.title||'(untitled)'}\nAlbum: ${meta.album||'(album)'}\nTrack: ${meta.track||'?'} of ${meta.total||'?'}\nHashtags to append: ${HASHTAGS}\n\nLyrics:\n${lyrics}\n\nReturn top 3 hooks, each with its caption, as JSON.`;
-}
+{
+ "albumNames":[{"name":"...","angle":"..."}],
+ "taglines":["...","..."],
+ "single":{"pick":"track title","why":"...","runnerUp":"track title"},
+ "tracks":[{"track":1,"title":"...","line":"exact hook line","score":90,"caption":"full caption with real newlines"}]
+}`;
 
 function parseJSON(text){
-  let t = text.replace(/```json/gi,'').replace(/```/g,'').trim();
-  const s=t.indexOf('{'), e=t.lastIndexOf('}');
-  if(s>=0 && e>=0) t=t.slice(s,e+1);
+  let t=text.replace(/```json/gi,'').replace(/```/g,'').trim();
+  const s=t.indexOf('{'),e=t.lastIndexOf('}');
+  if(s>=0&&e>=0)t=t.slice(s,e+1);
   return JSON.parse(t);
 }
 
-async function callClaude(lyrics, meta){
-  const userKey = $('anthropicKey').value.trim();
-  const headers = {"Content-Type":"application/json"};
-  if(userKey){ headers["x-api-key"]=userKey; headers["anthropic-version"]="2023-06-01"; headers["anthropic-dangerous-direct-browser-access"]="true"; }
-  const res = await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST", headers,
-    body:JSON.stringify({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:1500,
-      system:SYSTEM_PROMPT,
-      messages:[{role:"user",content:buildUserMsg(lyrics,meta)}]
-    })
-  });
-  if(!res.ok) throw new Error("claude "+res.status);
-  const data = await res.json();
-  const text = (data.content||[]).map(b=>b.text||"").join("\n");
-  return parseJSON(text);
+async function callClaude(system,user,maxTok){
+  const userKey=$('anthropicKey').value.trim();
+  const headers={"Content-Type":"application/json"};
+  if(userKey){headers["x-api-key"]=userKey;headers["anthropic-version"]="2023-06-01";headers["anthropic-dangerous-direct-browser-access"]="true";}
+  const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers,
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTok,system,messages:[{role:"user",content:user}]})});
+  if(!res.ok)throw new Error("claude "+res.status);
+  const data=await res.json();
+  return parseJSON((data.content||[]).map(b=>b.text||"").join("\n"));
 }
-
-async function callGroq(lyrics, meta){
-  const key = $('groqKey').value.trim();
-  if(!key) throw new Error("no groq key");
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions",{
-    method:"POST",
+async function callGroq(system,user){
+  const key=$('groqKey').value.trim();
+  if(!key)throw new Error("no groq key");
+  const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",
     headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-    body:JSON.stringify({
-      model:"llama-3.3-70b-versatile",
-      temperature:0.6,
-      messages:[{role:"system",content:SYSTEM_PROMPT},{role:"user",content:buildUserMsg(lyrics,meta)}]
-    })
-  });
-  if(!res.ok) throw new Error("groq "+res.status);
-  const data = await res.json();
+    body:JSON.stringify({model:"llama-3.3-70b-versatile",temperature:0.6,messages:[{role:"system",content:system},{role:"user",content:user}]})});
+  if(!res.ok)throw new Error("groq "+res.status);
+  const data=await res.json();
   return parseJSON(data.choices[0].message.content);
 }
+// Groq primary, Claude fallback (per user: groq then claude)
+async function run(system,user,maxTok){
+  try{ return await callGroq(system,user); }
+  catch(e1){ return await callClaude(system,user,maxTok||1500); }
+}
 
-function render(hooks){
-  const box=$('results'); box.innerHTML='';
+function copyBtn(el,sel,text,label){
+  el.querySelector(sel).addEventListener('click',ev=>{
+    navigator.clipboard.writeText(text);const o=ev.target.textContent;ev.target.textContent='Copied ✓';
+    setTimeout(()=>ev.target.textContent=label,1400);
+  });
+}
+
+function renderSingle(hooks){
+  const box=$('results');box.innerHTML='';
   hooks.sort((a,b)=>(b.score||0)-(a.score||0));
   hooks.forEach((h,i)=>{
-    const top=i===0;
-    const el=document.createElement('div');
-    el.className='result'+(top?' top':'');
-    el.style.animationDelay=(i*0.08)+'s';
+    const top=i===0;const el=document.createElement('div');
+    el.className='result'+(top?' top':'');el.style.animationDelay=(i*0.08)+'s';
     const cap=(h.caption||'').trim();
     el.innerHTML=`
-      <div class="r-head">
-        <span class="rank ${top?'top':''}">${top?'★ Strongest hook':'Alt #'+i}</span>
-        <span class="score">${h.score??'--'}<small>/100</small></span>
-      </div>
+      <div class="r-head"><span class="rank ${top?'top':''}">${top?'★ Strongest hook':'Alt #'+i}</span><span class="score">${h.score??'--'}<small>/100</small></span></div>
       <div class="line">${(h.line||'').replace(/\n/g,'<br>')}</div>
-      <div class="cap-label">Ready-to-post caption</div>
-      <div class="caption-box"></div>
-      <div class="btnrow">
-        <button class="mini copy-cap">Copy caption</button>
-        <button class="mini copy-line">Copy hook only</button>
-        <button class="mini toggle-why">Why this line</button>
-      </div>
-      <div class="why"><b>why it catches:</b> ${h.why||''}</div>
-    `;
-    el.querySelector('.caption-box').textContent = cap;
-    el.querySelector('.copy-cap').addEventListener('click',ev=>{
-      navigator.clipboard.writeText(cap); ev.target.textContent='Copied ✓';
-      setTimeout(()=>ev.target.textContent='Copy caption',1400);
-    });
-    el.querySelector('.copy-line').addEventListener('click',ev=>{
-      navigator.clipboard.writeText(h.line||''); ev.target.textContent='Copied ✓';
-      setTimeout(()=>ev.target.textContent='Copy hook only',1400);
-    });
-    el.querySelector('.toggle-why').addEventListener('click',ev=>{
-      const w=el.querySelector('.why'); w.classList.toggle('show'); ev.target.classList.toggle('on');
-    });
+      <div class="cap-label">Ready-to-post caption</div><div class="caption-box"></div>
+      <div class="btnrow"><button class="mini copy-cap">Copy caption</button><button class="mini copy-line">Copy hook only</button><button class="mini toggle-why">Why this line</button></div>
+      <div class="why"><b>why it catches:</b> ${h.why||''}</div>`;
+    el.querySelector('.caption-box').textContent=cap;
+    copyBtn(el,'.copy-cap',cap,'Copy caption');copyBtn(el,'.copy-line',h.line||'','Copy hook only');
+    el.querySelector('.toggle-why').addEventListener('click',ev=>{el.querySelector('.why').classList.toggle('show');ev.target.classList.toggle('on');});
     box.appendChild(el);
   });
 }
 
-$('go').addEventListener('click', async ()=>{
+function renderAlbum(r){
+  const box=$('results');box.innerHTML='';
+  // Names
+  let s1=document.createElement('div');s1.className='report-sec';
+  s1.innerHTML=`<h2>album name <span class="draft-tag">drafts — yours to own</span></h2>`+
+    (r.albumNames||[]).map(n=>`<div class="opt">${n.name}<small>${n.angle||''}</small></div>`).join('');
+  box.appendChild(s1);
+  // Taglines
+  let s2=document.createElement('div');s2.className='report-sec';
+  s2.innerHTML=`<h2>frequency tagline <span class="draft-tag">drafts</span></h2>`+
+    (r.taglines||[]).map(t=>`<div class="opt">${t}</div>`).join('');
+  box.appendChild(s2);
+  // Single
+  if(r.single){
+    let s3=document.createElement('div');s3.className='report-sec';
+    s3.innerHTML=`<h2>breakout single</h2><div class="single-pick">★ ${r.single.pick||''}</div>
+      <div class="single-why">${r.single.why||''}</div>
+      ${r.single.runnerUp?`<div class="single-why" style="margin-top:8px;opacity:.7;">Runner-up: ${r.single.runnerUp}</div>`:''}`;
+    box.appendChild(s3);
+  }
+  // Tracks
+  let s4=document.createElement('div');s4.className='report-sec';
+  s4.innerHTML=`<h2>per-track hooks + captions</h2>`;
+  (r.tracks||[]).sort((a,b)=>(a.track||0)-(b.track||0)).forEach(t=>{
+    const cap=(t.caption||'').trim();
+    const tm=document.createElement('div');tm.className='track-mini';
+    tm.innerHTML=`<div class="tm-title">Track ${t.track||''} — ${t.title||''} · ${t.score??'--'}/100</div>
+      <div class="tm-line">${(t.line||'').replace(/\n/g,'<br>')}</div>
+      <div class="caption-box"></div>
+      <div class="btnrow"><button class="mini copy-cap">Copy caption</button><button class="mini copy-line">Copy hook</button></div>`;
+    tm.querySelector('.caption-box').textContent=cap;
+    copyBtn(tm,'.copy-cap',cap,'Copy caption');copyBtn(tm,'.copy-line',t.line||'','Copy hook');
+    s4.appendChild(tm);
+  });
+  box.appendChild(s4);
+}
+
+// SINGLE run
+$('go-single').addEventListener('click',async()=>{
   const lyrics=$('lyrics').value.trim();
   const meta={title:$('title').value.trim(),album:$('album').value.trim(),track:$('track').value.trim(),total:$('total').value.trim()};
-  const status=$('status');
-  if(!lyrics){ status.className='status err'; status.textContent='Paste lyrics first.'; return; }
-  $('go').disabled=true; $('results').innerHTML='';
-  status.className='status'; status.textContent='Scanning the signal…';
-  let hooks=null;
-  try{ const r=await callClaude(lyrics,meta); hooks=r.hooks; }
-  catch(e1){
-    try{ status.textContent='Primary down — falling back to Groq…'; const r=await callGroq(lyrics,meta); hooks=r.hooks; }
-    catch(e2){ status.className='status err'; status.textContent='Both backends failed. Add a key below, or try again.'; $('go').disabled=false; return; }
-  }
-  if(hooks && hooks.length){ status.textContent=''; render(hooks); }
-  else { status.className='status err'; status.textContent='No hooks returned — try again.'; }
-  $('go').disabled=false;
+  const status=$('status-single');
+  if(!lyrics){status.className='status err';status.textContent='Paste lyrics first.';return;}
+  $('go-single').disabled=true;$('results').innerHTML='';status.className='status';status.textContent='Scanning the signal…';
+  const user=`Song title: ${meta.title||'(untitled)'}\nAlbum: ${meta.album||'(album)'}\nTrack: ${meta.track||'?'} of ${meta.total||'?'}\nHashtags: ${DEFAULT_TAGS}\n\nLyrics:\n${lyrics}\n\nTop 3 hooks + captions as JSON.`;
+  try{const r=await run(SINGLE_SYSTEM,user,1500);if(r.hooks&&r.hooks.length){status.textContent='';renderSingle(r.hooks);}else{throw new Error('empty');}}
+  catch(e){status.className='status err';status.textContent='Failed — check your Groq key below, or try again.';}
+  $('go-single').disabled=false;
 });
+
+// ALBUM run
+$('go-album').addEventListener('click',async()=>{
+  const n=parseInt($('a-count').value,10);
+  const blocks=$('song-fields').querySelectorAll('.song-block');
+  const songs=[];
+  blocks.forEach((b,i)=>{
+    const t=b.querySelector('.s-title').value.trim();
+    const l=b.querySelector('.s-lyrics').value.trim();
+    if(l)songs.push({track:i+1,title:t||`(track ${i+1})`,lyrics:l});
+  });
+  const status=$('status-album');
+  if(songs.length<2){status.className='status err';status.textContent='Paste at least 2 songs.';return;}
+  const album=$('a-album').value.trim();
+  const tags=$('a-hashtags').value.trim()||DEFAULT_TAGS;
+  $('go-album').disabled=true;$('results').innerHTML='';status.className='status';status.textContent=`Reading ${songs.length} tracks…`;
+  const songText=songs.map(s=>`=== TRACK ${s.track}: ${s.title} ===\n${s.lyrics}`).join('\n\n');
+  const user=`Album name: ${album||'(none given — suggest one)'}\nTotal tracks for caption numbering: ${songs.length}\nHashtags: ${tags}\n\n${songText}\n\nReturn the full report as JSON.`;
+  try{const r=await run(ALBUM_SYSTEM,user,4000);renderAlbum(r);status.textContent='';}
+  catch(e){status.className='status err';status.textContent='Failed — album mode needs a working key. Check Groq key below, or try again.';}
+  $('go-album').disabled=false;
+});
+
+renderSongFields();
 </script>
 </body>
 </html>
