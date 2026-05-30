@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cryptid Static — Hook Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07090c;
+    --panel:#0d1116;
+    --panel-2:#11161d;
+    --line:#1d2630;
+    --cyan:#39e6e0;
+    --cyan-dim:#1b8c89;
+    --red:#ff3b4e;
+    --text:#cdd6df;
+    --muted:#6b7986;
+    --white:#f4f8fb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;}
+  body{
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(57,230,224,0.06), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(255,59,78,0.05), transparent 45%);
+    padding:24px 16px 80px;
+  }
+  /* scanline / grain overlay */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;opacity:.5;
+  }
+  .wrap{max-width:680px;margin:0 auto;}
+  header{text-align:center;margin-bottom:8px;position:relative;}
+  .kicker{font-size:11px;letter-spacing:.45em;color:var(--cyan-dim);text-transform:uppercase;margin-bottom:14px;}
+  h1{
+    font-family:'Major Mono Display',monospace;
+    font-size:clamp(26px,7vw,42px);
+    color:var(--white);letter-spacing:.06em;line-height:1.05;
+    text-shadow:0 0 18px rgba(57,230,224,0.25);
+    position:relative;
+  }
+  h1 .glitch{position:relative;display:inline-block;}
+  h1 .glitch::before,h1 .glitch::after{
+    content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden;
+  }
+  h1 .glitch::before{color:var(--red);transform:translate(-2px,0);clip-path:inset(0 0 55% 0);opacity:.0;animation:g1 6s infinite steps(1);}
+  h1 .glitch::after{color:var(--cyan);transform:translate(2px,0);clip-path:inset(55% 0 0 0);opacity:.0;animation:g2 6s infinite steps(1);}
+  @keyframes g1{0%,96%,100%{opacity:0}97%{opacity:.8}98%{opacity:0}}
+  @keyframes g2{0%,93%,100%{opacity:0}94%{opacity:.8}95%{opacity:0}}
+  .sub{color:var(--muted);font-size:12px;margin-top:14px;letter-spacing:.08em;}
+  .sub b{color:var(--text);font-weight:700;}
+
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);border-radius:14px;
+    padding:18px;margin-top:22px;position:relative;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:18px;right:18px;height:1px;
+    background:linear-gradient(90deg,transparent,var(--cyan-dim),transparent);opacity:.5;
+  }
+  label{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  textarea{
+    width:100%;min-height:220px;resize:vertical;
+    background:#05070a;border:1px solid var(--line);border-radius:10px;
+    color:var(--text);font-family:'Space Mono',monospace;font-size:14px;line-height:1.6;
+    padding:14px;outline:none;transition:border-color .2s;
+  }
+  textarea:focus{border-color:var(--cyan-dim);box-shadow:0 0 0 1px var(--cyan-dim);}
+  textarea::placeholder{color:#3a4651;}
+
+  .row{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap;}
+  .title-in{
+    flex:1;min-width:160px;background:#05070a;border:1px solid var(--line);border-radius:10px;
+    color:var(--text);font-family:'Space Mono',monospace;font-size:13px;padding:11px 12px;outline:none;
+  }
+  .title-in:focus{border-color:var(--cyan-dim);}
+
+  button.go{
+    width:100%;margin-top:16px;padding:15px;border:none;border-radius:10px;cursor:pointer;
+    font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:.18em;text-transform:uppercase;
+    color:#04201f;background:linear-gradient(90deg,var(--cyan),#7ff5f0);
+    transition:transform .12s, box-shadow .2s, opacity .2s;
+    box-shadow:0 0 24px rgba(57,230,224,0.25);
+  }
+  button.go:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 0 34px rgba(57,230,224,0.45);}
+  button.go:active:not(:disabled){transform:translateY(0);}
+  button.go:disabled{opacity:.5;cursor:not-allowed;}
+
+  .status{text-align:center;color:var(--cyan);font-size:12px;letter-spacing:.2em;margin-top:18px;min-height:18px;text-transform:uppercase;}
+  .status.err{color:var(--red);}
+
+  .results{margin-top:8px;}
+  .result{
+    background:linear-gradient(180deg,var(--panel),#0a0e13);
+    border:1px solid var(--line);border-left:3px solid var(--cyan-dim);
+    border-radius:12px;padding:16px 16px 16px 18px;margin-top:14px;
+    animation:rise .5s ease both;
+  }
+  .result.top{border-left-color:var(--cyan);box-shadow:0 0 30px rgba(57,230,224,0.10);}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .r-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;}
+  .rank{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);}
+  .rank.top{color:var(--cyan);}
+  .score{font-family:'Major Mono Display',monospace;font-size:22px;color:var(--white);}
+  .score small{font-size:12px;color:var(--muted);}
+  .line{font-size:17px;line-height:1.45;color:var(--white);margin-bottom:12px;font-weight:700;}
+  .why{font-size:12.5px;line-height:1.6;color:var(--text);opacity:.85;border-top:1px dashed var(--line);padding-top:10px;}
+  .why b{color:var(--cyan);font-weight:400;letter-spacing:.05em;}
+  .copy{margin-top:12px;background:transparent;border:1px solid var(--line);color:var(--muted);
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    padding:7px 12px;border-radius:7px;cursor:pointer;transition:.15s;}
+  .copy:hover{border-color:var(--cyan-dim);color:var(--cyan);}
+
+  details.crit{margin-top:22px;border:1px solid var(--line);border-radius:10px;background:var(--panel);}
+  summary{cursor:pointer;padding:13px 16px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);list-style:none;}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";color:var(--cyan-dim);}
+  details[open] summary::before{content:"▾ ";}
+  .crit-body{padding:0 16px 16px;font-size:12.5px;line-height:1.7;color:var(--muted);}
+  .crit-body b{color:var(--text);}
+
+  .keybar{margin-top:22px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.05em;}
+  .keybar input{background:#05070a;border:1px solid var(--line);border-radius:8px;color:var(--text);
+    font-family:'Space Mono',monospace;font-size:11px;padding:8px 10px;width:230px;margin:6px 4px 0;}
+  .keybar input:focus{outline:none;border-color:var(--cyan-dim);}
+  footer{text-align:center;margin-top:34px;color:#384450;font-size:10px;letter-spacing:.3em;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Cryptid Static · Signal Tools</div>
+    <h1><span class="glitch" data-t="HOOK FINDER">HOOK FINDER</span></h1>
+    <p class="sub">Paste lyrics. Get the line that makes them <b>feel caught</b>.</p>
+  </header>
+
+  <div class="card">
+    <label for="lyrics">Lyrics</label>
+    <textarea id="lyrics" placeholder="Paste full lyrics here — verses, chorus, bridge, all of it..."></textarea>
+    <div class="row">
+      <input id="title" class="title-in" type="text" placeholder="Song title (optional)" />
+    </div>
+    <button class="go" id="go">Find the hook</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <details class="crit">
+    <summary>What it's scoring for</summary>
+    <div class="crit-body">
+      <b>Implication</b> — does the line make the viewer feel <i>caught</i>, like you read a private thought of theirs?<br><br>
+      <b>Confession against self-interest</b> — admitting something ugly or unflattering they'd rather not say out loud. The "<i>almost wants it back</i>" move.<br><br>
+      <b>Specificity</b> — a concrete, lived detail beats an abstract feeling.<br><br>
+      <b>Scroll-stop</b> — it has to land cold, in the first 2 seconds, with zero context.<br><br>
+      <b>Benchmark (10/10):</b> "and I still hate that part of me that almost wants it back."
+    </div>
+  </details>
+
+  <div class="keybar">
+    Running on GitHub Pages? Add your fallback key (stored only in this browser):<br>
+    <input id="anthropicKey" type="password" placeholder="Anthropic API key (optional)" />
+    <input id="groqKey" type="password" placeholder="Groq API key (fallback)" />
+  </div>
+
+  <footer>Stay tuned.</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// Persist keys locally (same pattern as the other apps)
+['anthropicKey','groqKey'].forEach(k=>{
+  const el=$(k);
+  try{ const v=localStorage.getItem('cs_'+k); if(v) el.value=v; }catch(e){}
+  el.addEventListener('input',()=>{ try{localStorage.setItem('cs_'+k, el.value);}catch(e){} });
+});
+
+const SYSTEM_PROMPT = `You are a hook-selection engine for Cryptid Static, a dark glitch-metal project. The user gives you song lyrics. Your job: find the single lines (or tight 2-line couplets) that work best as a TikTok hook clip — the text that flashes on screen in the first 2 seconds to stop the scroll.
+
+You are NOT looking for the prettiest or best-written line. You are looking for the line that makes a viewer feel CAUGHT — like you just said their own private, unflattering thought out loud.
+
+Score each candidate 0-100 on these weighted criteria:
+- IMPLICATION (40%): Does it make the viewer feel seen/caught in a private thought? Does it implicate THEM, not just describe the narrator?
+- CONFESSION AGAINST SELF-INTEREST (30%): Is it admitting something ugly, contradictory, or shameful the narrator would rather not say? Self-incriminating beats self-pitying.
+- SPECIFICITY (15%): Concrete lived detail over abstract feeling.
+- SCROLL-STOP (15%): Works cold with zero context, in under 2 seconds, no setup needed.
+
+The 10/10 anchor benchmark is: "and I still hate that part of me that almost wants it back" — note WHY: it's a confession against self-interest (still wanting the bad thing), the word "almost" makes it contradictory and true, and it catches the listener admitting their own worst thought.
+
+Avoid choosing: pure scene-setting, abstract mood lines, anything that needs the rest of the song to make sense, or lines that only describe a feeling rather than confess one.
+
+Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
+{"hooks":[{"line":"the exact line(s) from the lyrics","score":87,"why":"one or two sentences on why it catches the listener — name the specific move it makes"}]}
+Return the top 3 candidates, ranked highest score first. Use the lyrics' exact wording. Whole-number scores only.`;
+
+function buildUserMsg(lyrics, title){
+  return (title ? `Song title: ${title}\n\n` : '') + `Lyrics:\n${lyrics}\n\nReturn the top 3 hook candidates as JSON.`;
+}
+
+function parseJSON(text){
+  let t = text.replace(/```json/gi,'').replace(/```/g,'').trim();
+  const s=t.indexOf('{'), e=t.lastIndexOf('}');
+  if(s>=0 && e>=0) t=t.slice(s,e+1);
+  return JSON.parse(t);
+}
+
+async function callClaude(lyrics, title){
+  const userKey = $('anthropicKey').value.trim();
+  const headers = {"Content-Type":"application/json"};
+  // On GitHub Pages the built-in proxy isn't present; a user key + direct header is needed.
+  if(userKey){ headers["x-api-key"]=userKey; headers["anthropic-version"]="2023-06-01"; headers["anthropic-dangerous-direct-browser-access"]="true"; }
+  const res = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST", headers,
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:1000,
+      system:SYSTEM_PROMPT,
+      messages:[{role:"user",content:buildUserMsg(lyrics,title)}]
+    })
+  });
+  if(!res.ok) throw new Error("claude "+res.status);
+  const data = await res.json();
+  const text = (data.content||[]).map(b=>b.text||"").join("\n");
+  return parseJSON(text);
+}
+
+async function callGroq(lyrics, title){
+  const key = $('groqKey').value.trim();
+  if(!key) throw new Error("no groq key");
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+    body:JSON.stringify({
+      model:"llama-3.3-70b-versatile",
+      temperature:0.6,
+      messages:[
+        {role:"system",content:SYSTEM_PROMPT},
+        {role:"user",content:buildUserMsg(lyrics,title)}
+      ]
+    })
+  });
+  if(!res.ok) throw new Error("groq "+res.status);
+  const data = await res.json();
+  return parseJSON(data.choices[0].message.content);
+}
+
+function render(hooks){
+  const box=$('results'); box.innerHTML='';
+  hooks.sort((a,b)=>(b.score||0)-(a.score||0));
+  hooks.forEach((h,i)=>{
+    const top=i===0;
+    const el=document.createElement('div');
+    el.className='result'+(top?' top':'');
+    el.style.animationDelay=(i*0.08)+'s';
+    const lineText=(h.line||'').replace(/\n/g,'<br>');
+    el.innerHTML=`
+      <div class="r-head">
+        <span class="rank ${top?'top':''}">${top?'★ Strongest hook':'Alt #'+i}</span>
+        <span class="score">${h.score??'--'}<small>/100</small></span>
+      </div>
+      <div class="line">${lineText}</div>
+      <div class="why"><b>why it catches:</b> ${h.why||''}</div>
+      <button class="copy">Copy line</button>
+    `;
+    el.querySelector('.copy').addEventListener('click',()=>{
+      navigator.clipboard.writeText(h.line||'');
+      el.querySelector('.copy').textContent='Copied ✓';
+      setTimeout(()=>el.querySelector('.copy').textContent='Copy line',1400);
+    });
+    box.appendChild(el);
+  });
+}
+
+$('go').addEventListener('click', async ()=>{
+  const lyrics=$('lyrics').value.trim();
+  const title=$('title').value.trim();
+  const status=$('status');
+  if(!lyrics){ status.className='status err'; status.textContent='Paste lyrics first.'; return; }
+  $('go').disabled=true; $('results').innerHTML='';
+  status.className='status'; status.textContent='Scanning the signal…';
+  let hooks=null;
+  try{
+    const r=await callClaude(lyrics,title); hooks=r.hooks;
+  }catch(e1){
+    try{
+      status.textContent='Primary down — falling back to Groq…';
+      const r=await callGroq(lyrics,title); hooks=r.hooks;
+    }catch(e2){
+      status.className='status err';
+      status.textContent='Both backends failed. Add a key below, or try again.';
+      $('go').disabled=false; return;
+    }
+  }
+  if(hooks && hooks.length){ status.textContent=''; render(hooks); }
+  else { status.className='status err'; status.textContent='No hooks returned — try again.'; }
+  $('go').disabled=false;
+});
+</script>
+</body>
+</html>
